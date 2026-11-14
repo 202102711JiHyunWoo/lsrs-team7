@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/demo/lsrs;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
+app:
+  demo: true
+  fixed-time: ${LSRS_DEMO_TIME:2026-11-14T10:00:00+09:00}
+  jwt:
+    secret: 'lsrs-demo-only-not-for-deployment-8a9a0da6ae5b4b0eb091a'
+  mail:
+    mode: ${LSRS_MAIL_MODE:file}
+    outbox-directory: ./data/demo/mailbox
+  admin-emails: admin@example.test

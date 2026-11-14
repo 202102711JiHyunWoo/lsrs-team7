@@ -1,0 +1,7 @@
+app:
+  mail:
+    mode: ${LSRS_MAIL_MODE:file}
+  admin-emails: ${LSRS_ADMIN_EMAILS:admin@example.test}
+spring:
+  thymeleaf:
+    cache: false

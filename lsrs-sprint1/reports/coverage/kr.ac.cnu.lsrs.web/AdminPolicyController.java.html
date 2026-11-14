@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminPolicyController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.web</a> &gt; <span class="el_source">AdminPolicyController.java</span></div><h1>AdminPolicyController.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.web;
+import jakarta.validation.Valid;
+import kr.ac.cnu.lsrs.config.CurrentUser;
+import kr.ac.cnu.lsrs.repository.SeatRepository;
+import kr.ac.cnu.lsrs.service.*;
+import kr.ac.cnu.lsrs.web.ApiDtos.*;
+import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/admin&quot;)
+public class AdminPolicyController {
+    private final PolicyService policies;
+    private final QrService qr;
+    private final SeatRepository seats;
+<span class="fc" id="L18">    public AdminPolicyController(PolicyService policies, QrService qr, SeatRepository seats) { this.policies = policies; this.qr = qr; this.seats = seats; }</span>
+<span class="fc" id="L19">    @GetMapping(&quot;/policies&quot;) public PolicyView current() { return policies.current(); }</span>
+    @PutMapping(&quot;/policies&quot;)
+    public PolicyView changeMode(@AuthenticationPrincipal CurrentUser user, @Valid @RequestBody PolicyModeRequest request) {
+<span class="fc" id="L22">        return policies.changeMode(user.id(), request);</span>
+    }
+    @GetMapping(&quot;/seats&quot;) public List&lt;SeatView&gt; listSeats() {
+<span class="nc" id="L25">        return seats.findAllByOrderByCodeAsc().stream().map(seat -&gt; new SeatView(seat.getId(), seat.getCode(), seat.getZone(), &quot;&quot;, false)).toList();</span>
+    }
+    @GetMapping(value = &quot;/seats/{id}/qr.png&quot;, produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity&lt;byte[]&gt; seatQr(@PathVariable long id) {
+<span class="fc" id="L29">        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(qr.png(id));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

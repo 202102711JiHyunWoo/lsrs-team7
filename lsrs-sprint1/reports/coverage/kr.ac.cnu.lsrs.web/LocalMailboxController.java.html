@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocalMailboxController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.web</a> &gt; <span class="el_source">LocalMailboxController.java</span></div><h1>LocalMailboxController.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.web;
+
+import jakarta.servlet.http.HttpServletRequest;
+import kr.ac.cnu.lsrs.service.BusinessException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import java.io.*;
+import java.net.*;
+import java.nio.file.*;
+import java.util.*;
+
+@Controller
+@Profile({&quot;local&quot;, &quot;demo&quot;})
+@ConditionalOnProperty(name = &quot;app.mail.mode&quot;, havingValue = &quot;file&quot;)
+public class LocalMailboxController {
+    private final Path directory;
+<span class="nc" id="L20">    public LocalMailboxController(@Value(&quot;${app.mail.outbox-directory}&quot;) String directory) { this.directory = Path.of(directory); }</span>
+    private void requireLoopback(HttpServletRequest request) {
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        try { if (!InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress()) throw BusinessException.forbidden(&quot;개발용 메일함은 이 컴퓨터에서만 열 수 있습니다.&quot;); }</span>
+<span class="nc" id="L23">        catch (UnknownHostException exception) { throw BusinessException.forbidden(&quot;개발용 메일함에 접근할 수 없습니다.&quot;); }</span>
+<span class="nc" id="L24">    }</span>
+<span class="nc" id="L25">    @GetMapping(&quot;/dev/mailbox&quot;) public String page(HttpServletRequest request) { requireLoopback(request); return &quot;mailbox&quot;; }</span>
+    @GetMapping(&quot;/api/dev/mailbox&quot;) @ResponseBody
+    public List&lt;Map&lt;String, String&gt;&gt; messages(HttpServletRequest request, @RequestParam(required = false) String email) throws IOException {
+<span class="nc" id="L28">        requireLoopback(request);</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if (!Files.exists(directory)) return List.of();</span>
+<span class="nc" id="L30">        List&lt;Map&lt;String, String&gt;&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L31">        try (var paths = Files.list(directory)) {</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">            for (Path path : paths.filter(file -&gt; file.getFileName().toString().endsWith(&quot;.properties&quot;)).toList()) {</span>
+<span class="nc" id="L33">                Properties properties = new Properties();</span>
+<span class="nc" id="L34">                try (Reader reader = Files.newBufferedReader(path)) { properties.load(reader); }</span>
+<span class="nc bnc" id="L35" title="All 4 branches missed.">                if (email != null &amp;&amp; !properties.getProperty(&quot;to&quot;, &quot;&quot;).equalsIgnoreCase(email.strip())) continue;</span>
+<span class="nc" id="L36">                Map&lt;String, String&gt; row = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">                for (String key : List.of(&quot;id&quot;, &quot;to&quot;, &quot;subject&quot;, &quot;link&quot;, &quot;sentAt&quot;)) row.put(key, properties.getProperty(key, &quot;&quot;));</span>
+<span class="nc" id="L38">                result.add(row);</span>
+<span class="nc" id="L39">            }</span>
+        }
+<span class="nc" id="L41">        result.sort(Comparator.comparing((Map&lt;String, String&gt; row) -&gt; row.get(&quot;sentAt&quot;)).reversed());</span>
+<span class="nc" id="L42">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

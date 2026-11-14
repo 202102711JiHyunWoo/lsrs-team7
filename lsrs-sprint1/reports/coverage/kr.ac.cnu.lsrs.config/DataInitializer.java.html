@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataInitializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.config</a> &gt; <span class="el_source">DataInitializer.java</span></div><h1>DataInitializer.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.config;
+
+import kr.ac.cnu.lsrs.domain.*;
+import kr.ac.cnu.lsrs.repository.*;
+import kr.ac.cnu.lsrs.service.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.*;
+
+@Component
+public class DataInitializer implements ApplicationRunner {
+    private final AppUserRepository users; private final SeatRepository seats;
+    private final PolicyVersionRepository policies; private final ReservationRepository reservations;
+    private final QrService qr; private final PasswordEncoder passwords; private final Clock clock;
+    private final boolean demo; private final PolicyVersion.Mode mode;
+    public DataInitializer(AppUserRepository users, SeatRepository seats, PolicyVersionRepository policies,
+                           ReservationRepository reservations, QrService qr, PasswordEncoder passwords, Clock clock,
+<span class="fc" id="L22">                           @Value(&quot;${app.demo:false}&quot;) boolean demo, @Value(&quot;${app.initial-policy-mode}&quot;) PolicyVersion.Mode mode) {</span>
+<span class="fc" id="L23">        this.users = users; this.seats = seats; this.policies = policies; this.reservations = reservations;</span>
+<span class="fc" id="L24">        this.qr = qr; this.passwords = passwords; this.clock = clock; this.demo = demo; this.mode = mode;</span>
+<span class="fc" id="L25">    }</span>
+    @Override @Transactional
+    public void run(ApplicationArguments arguments) {
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (policies.count() == 0) policies.saveAndFlush(new PolicyVersion(1, mode, clock.instant()));</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (seats.count() == 0) {</span>
+<span class="fc bfc" id="L30" title="All 4 branches covered.">            for (char row = 'A'; row &lt;= 'H'; row++) for (int column = 1; column &lt;= 6; column++) {</span>
+<span class="fc" id="L31">                String code = &quot;%c%02d&quot;.formatted(row, column);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">                seats.save(new Seat(code, row &lt;= 'D' ? &quot;QUIET&quot; : &quot;OPEN&quot;, TokenHash.sha256(qr.token(code))));</span>
+            }
+<span class="nc bnc" id="L34" title="All 4 branches missed.">        } else if (seats.findAllByOrderByCodeAsc().stream().anyMatch(seat -&gt; !TokenHash.matches(qr.token(seat.getCode()), seat.getQrTokenHash()))) {</span>
+<span class="nc" id="L35">            throw new IllegalStateException(&quot;Saved seat QR codes require the original data/jwt.key or LSRS_JWT_SECRET.&quot;);</span>
+        }
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (demo) initializeDemo();</span>
+<span class="fc" id="L38">    }</span>
+    private void initializeDemo() {
+<span class="nc" id="L40">        demoUser(&quot;20260001&quot;, &quot;student@example.test&quot;, AppUser.Role.STUDENT);</span>
+<span class="nc" id="L41">        demoUser(null, &quot;admin@example.test&quot;, AppUser.Role.ADMIN);</span>
+<span class="nc" id="L42">        AppUser other = demoUser(&quot;20260002&quot;, &quot;other@example.test&quot;, AppUser.Role.STUDENT);</span>
+<span class="nc" id="L43">        AppUser waiting = demoUser(&quot;20260003&quot;, &quot;reserved@example.test&quot;, AppUser.Role.STUDENT);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (reservations.count() == 0) {</span>
+<span class="nc" id="L45">            PolicyVersion policy = policies.findFirstByOrderByVersionNoDesc().orElseThrow();</span>
+<span class="nc" id="L46">            Instant start = clock.instant().atZone(TimeRules.ZONE).withHour(10).withMinute(0).withSecond(0).withNano(0).toInstant();</span>
+<span class="nc" id="L47">            Reservation inUse = new Reservation(other, seats.findByCode(&quot;A02&quot;).orElseThrow(), policy, start, start.plusSeconds(7200), start);</span>
+<span class="nc" id="L48">            inUse.checkIn(start); reservations.save(inUse);</span>
+<span class="nc" id="L49">            reservations.save(new Reservation(waiting, seats.findByCode(&quot;A05&quot;).orElseThrow(), policy, start, start.plusSeconds(3600), start));</span>
+        }
+<span class="nc" id="L51">    }</span>
+    private AppUser demoUser(String studentNo, String email, AppUser.Role role) {
+<span class="nc" id="L53">        return users.findByEmail(email).orElseGet(() -&gt; {</span>
+<span class="nc" id="L54">            AppUser user = new AppUser(studentNo, email, passwords.encode(&quot;Demo1234!&quot;), role, clock.instant()); user.activate();</span>
+<span class="nc" id="L55">            return users.saveAndFlush(user);</span>
+        });
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:lsrs-tests;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000
+  thymeleaf:
+    cache: false
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+logging:
+  level:
+    root: WARN
+app:
+  jwt:
+    secret: 'test-only-signing-key-with-at-least-thirty-two-bytes-2026'
+  mail:
+    mode: file
+    outbox-directory: ${java.io.tmpdir}/lsrs-sprint1-test-mailbox
+  admin-emails: admin@example.test

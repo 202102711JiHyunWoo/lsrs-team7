@@ -1,0 +1,27 @@
+{
+  "passed": 10,
+  "failed": 0,
+  "checks": [
+    "local mode uses actual time and hides development mailbox in SMTP mode",
+    "real JavaMailSender SMTP delivery creates pending account",
+    "SMTP token verification activates account",
+    "HTTP reservation persists with authoritative policy snapshot",
+    "admin policy updates through HTTP",
+    "file DB restart retains account and existing JWT",
+    "file DB restart retains reservation and policy",
+    "persistent signing key and QR survive restart",
+    "SMTP rejection keeps retryable pending account without false success",
+    "100 authenticated seat queries return successful real data"
+  ],
+  "latency": {
+    "requests": 100,
+    "warmup": 10,
+    "seatCount": 48,
+    "meanMs": 18.84,
+    "p95Ms": 74.98,
+    "maxMs": 135.75,
+    "note": "Serial localhost authenticated HTTP; exploratory measurement only. US05 load acceptance is Sprint 2."
+  },
+  "smtp": "Local scripted TCP SMTP receiver; no external mail sent",
+  "persistence": "H2 file DB + persistent random key; two app startups"
+}

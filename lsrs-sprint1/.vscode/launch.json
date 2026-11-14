@@ -1,0 +1,4 @@
+{"version":"0.2.0","configurations":[
+  {"type":"java","name":"LSRS local (real time)","request":"launch","mainClass":"kr.ac.cnu.lsrs.LsrsApplication","args":"--spring.profiles.active=local","cwd":"${workspaceFolder}"},
+  {"type":"java","name":"LSRS demo (fixed time)","request":"launch","mainClass":"kr.ac.cnu.lsrs.LsrsApplication","args":"--spring.profiles.active=demo","cwd":"${workspaceFolder}"}
+]}

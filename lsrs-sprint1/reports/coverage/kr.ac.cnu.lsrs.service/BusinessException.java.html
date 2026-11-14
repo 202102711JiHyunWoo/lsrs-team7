@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BusinessException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.service</a> &gt; <span class="el_source">BusinessException.java</span></div><h1>BusinessException.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.service;
+import org.springframework.http.HttpStatus;
+import java.util.Map;
+
+public class BusinessException extends RuntimeException {
+    private final HttpStatus status;
+    private final String code;
+    private final Map&lt;String, Object&gt; details;
+    public BusinessException(HttpStatus status, String code, String message) {
+<span class="fc" id="L10">        this(status, code, message, Map.of());</span>
+<span class="fc" id="L11">    }</span>
+    public BusinessException(HttpStatus status, String code, String message, Map&lt;String, Object&gt; details) {
+<span class="fc" id="L13">        super(message); this.status = status; this.code = code; this.details = details;</span>
+<span class="fc" id="L14">    }</span>
+<span class="fc" id="L15">    public HttpStatus getStatus() { return status; }</span>
+<span class="fc" id="L16">    public String getCode() { return code; }</span>
+<span class="fc" id="L17">    public Map&lt;String, Object&gt; getDetails() { return details; }</span>
+<span class="fc" id="L18">    public static BusinessException bad(String message) { return new BusinessException(HttpStatus.BAD_REQUEST, &quot;VALIDATION_ERROR&quot;, message); }</span>
+<span class="fc" id="L19">    public static BusinessException conflict(String code, String message) { return new BusinessException(HttpStatus.CONFLICT, code, message); }</span>
+<span class="fc" id="L20">    public static BusinessException forbidden(String message) { return new BusinessException(HttpStatus.FORBIDDEN, &quot;FORBIDDEN&quot;, message); }</span>
+<span class="fc" id="L21">    public static BusinessException missing() { return new BusinessException(HttpStatus.NOT_FOUND, &quot;NOT_FOUND&quot;, &quot;요청한 정보를 찾을 수 없습니다.&quot;); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

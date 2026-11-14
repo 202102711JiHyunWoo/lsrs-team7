@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.ac.cnu.lsrs.ReservationIntegrationTest" tests="37" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:11:49.255Z" hostname="0594de84711d" time="11.976">
+  <properties/>
+  <testcase name="US03_gridContainsAllFourDisplayStatesWithoutPrivateData()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.458"/>
+  <testcase name="US12_duplicateCheckInIsIdempotentEvenAfterGraceWindow()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.301"/>
+  <testcase name="US12_checkInBeforeStartIsRejected()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.286"/>
+  <testcase name="US12_wrongQrDoesNotChangeReservationState()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.232"/>
+  <testcase name="US12_generatedPngDecodesAndChecksInReservedSeat()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.945"/>
+  <testcase name="US10_exitReleasesSeatAndKeepsOriginalReservationTime()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.531"/>
+  <testcase name="US12_completedReservationCannotBeCheckedInAgain()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.301"/>
+  <testcase name="US03_missingOrMalformedQueryIsRejected()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="1.284"/>
+  <testcase name="reservationRestrictionIsEnforcedBeforeSprint2AutomaticPenalties()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.229"/>
+  <testcase name="US02_otherStudentCannotReadReservationDetail()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.469"/>
+  <testcase name="US12_otherStudentCannotCheckInReservation()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.255"/>
+  <testcase name="US04_exactNormalMaximumFourHoursIsAllowed()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.24"/>
+  <testcase name="invalid interval &quot;2026-11-14T11:30:00+09:00&quot; to &quot;2026-11-14T10:30:00+09:00&quot;" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.274"/>
+  <testcase name="invalid interval &quot;2026-11-14T10:30:00+09:00&quot; to &quot;2026-11-14T10:30:00+09:00&quot;" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.207"/>
+  <testcase name="invalid interval &quot;2026-11-14T23:30:00+09:00&quot; to &quot;2026-11-15T00:30:00+09:00&quot;" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.203"/>
+  <testcase name="invalid interval &quot;2026-11-14T10:15:00+09:00&quot; to &quot;2026-11-14T11:30:00+09:00&quot;" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.189"/>
+  <testcase name="invalid interval &quot;2026-11-14T10:30:01+09:00&quot; to &quot;2026-11-14T11:30:00+09:00&quot;" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.211"/>
+  <testcase name="invalid interval &quot;2026-11-14T10:30:00.001+09:00&quot; to &quot;2026-11-14T11:30:00+09:00&quot;" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.214"/>
+  <testcase name="invalid interval &quot;2026-11-14T10:30:00+09:00&quot; to &quot;2026-11-14T15:00:00+09:00&quot;" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.198"/>
+  <testcase name="US12_oneNanosecondAfterDeadlineIsRejectedWithoutScheduler()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.226"/>
+  <testcase name="US10_exitPreservesFollowingStudentsReservation()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.246"/>
+  <testcase name="US07_differentStudentCannotReserveSameSeatOverlap()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.22"/>
+  <testcase name="US12_exactDeadlineIsAllowed()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.209"/>
+  <testcase name="US10_otherStudentCannotExitAndDuplicateExitIsRejected()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.64"/>
+  <testcase name="US06_adminCannotCreateStudentReservation()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.195"/>
+  <testcase name="US06_missingSeatIs404()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.2"/>
+  <testcase name="US07_sameStudentCannotReserveOverlappingDifferentSeats()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.253"/>
+  <testcase name="US12_autoCancelledReservationCannotBeCheckedIn()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.223"/>
+  <testcase name="US07_adjacentReservationsAreAllowedForSameSeat()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.214"/>
+  <testcase name="restrictionEndsExactlyAtItsDeadline()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.207"/>
+  <testcase name="US10_reservedButNotCheckedInCannotExit()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.202"/>
+  <testcase name="US06_pastStartIsRejected()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.223"/>
+  <testcase name="US06_validReservationPersistsAndSnapshotsStartBasedDeadline()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.215"/>
+  <testcase name="US07_adjacentReservationsAreAllowedForSameStudent()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.221"/>
+  <testcase name="US03_invalidQueryReturns400NotAvailableSeats()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.199"/>
+  <testcase name="US03_fullyBookedGridReportsZeroAvailability()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.657"/>
+  <testcase name="US12_validQrForDifferentSeatIsRejected()" classname="kr.ac.cnu.lsrs.ReservationIntegrationTest" time="0.213"/>
+  <system-out><![CDATA[2026-11-14T07:11:49.249+09:00  WARN 193 --- [lsrs-sprint1] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : For test class [kr.ac.cnu.lsrs.ReservationIntegrationTest], the following 'default' context configuration classes were detected but are currently ignored: kr.ac.cnu.lsrs.IntegrationSupport$TimeConfiguration. In Spring Framework 7.1, these classes will no longer be ignored. Please update your test configuration accordingly. For details, see: https://docs.spring.io/spring-framework/reference/testing/testcontext-framework/ctx-management/default-config.html
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

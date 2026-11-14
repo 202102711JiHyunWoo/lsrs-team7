@@ -1,0 +1,9 @@
+{
+  "name": "lsrs-team7-sprint1-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Optional browser verification for the Java LSRS application",
+  "scripts": { "test:e2e": "node scripts/e2e.cjs" },
+  "devDependencies": { "playwright": "1.62.1" },
+  "engines": { "node": ">=22" }
+}

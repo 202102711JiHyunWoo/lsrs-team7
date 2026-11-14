@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SeatQueryService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.service</a> &gt; <span class="el_source">SeatQueryService.java</span></div><h1>SeatQueryService.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.service;
+
+import kr.ac.cnu.lsrs.domain.*;
+import kr.ac.cnu.lsrs.repository.*;
+import kr.ac.cnu.lsrs.web.ApiDtos.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.*;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class SeatQueryService {
+    private final SeatRepository seats;
+    private final ReservationRepository reservations;
+    private final PolicyService policies;
+    private final Clock clock;
+<span class="fc" id="L18">    public SeatQueryService(SeatRepository seats, ReservationRepository reservations, PolicyService policies, Clock clock) {</span>
+<span class="fc" id="L19">        this.seats = seats; this.reservations = reservations; this.policies = policies; this.clock = clock;</span>
+<span class="fc" id="L20">    }</span>
+    @Transactional(readOnly = true)
+    public SeatsView query(long userId, LocalDate date, LocalTime start, LocalTime end) {
+<span class="fc" id="L23">        PolicyVersion policy = policies.currentEntity();</span>
+<span class="fc" id="L24">        Instant from = date.atTime(start).atZone(TimeRules.ZONE).toInstant();</span>
+<span class="fc" id="L25">        Instant until = date.atTime(end).atZone(TimeRules.ZONE).toInstant();</span>
+<span class="fc" id="L26">        TimeRules.validate(from, until, policy.getReservationUnitMinutes());</span>
+<span class="fc" id="L27">        Map&lt;Long, List&lt;Reservation&gt;&gt; grouped = reservations.findOverlapping(from, until, ReservationService.ACTIVE).stream()</span>
+<span class="fc" id="L28">                .collect(Collectors.groupingBy(reservation -&gt; reservation.getSeat().getId()));</span>
+<span class="fc" id="L29">        List&lt;SeatView&gt; result = seats.findAllByOrderByCodeAsc().stream().map(seat -&gt; {</span>
+<span class="fc" id="L30">            List&lt;Reservation&gt; active = grouped.getOrDefault(seat.getId(), List.of());</span>
+<span class="fc bfc" id="L31" title="All 6 branches covered.">            String state = active.isEmpty() ? &quot;AVAILABLE&quot; : active.stream().anyMatch(r -&gt; r.getUser().getId() == userId) ? &quot;MINE&quot; :</span>
+<span class="fc bfc" id="L32" title="All 4 branches covered.">                    active.stream().anyMatch(r -&gt; r.getStatus() == Reservation.Status.CHECKED_IN) ? &quot;IN_USE&quot; : &quot;RESERVED&quot;;</span>
+<span class="fc" id="L33">            return new SeatView(seat.getId(), seat.getCode(), seat.getZone(), state, active.isEmpty());</span>
+<span class="fc" id="L34">        }).toList();</span>
+<span class="fc" id="L35">        return new SeatsView(result, (int) result.stream().filter(SeatView::available).count(), PolicyView.of(policy), clock.instant());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

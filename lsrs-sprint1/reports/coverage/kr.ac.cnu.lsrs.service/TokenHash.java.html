@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TokenHash.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.service</a> &gt; <span class="el_source">TokenHash.java</span></div><h1>TokenHash.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.service;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.*;
+
+public final class TokenHash {
+<span class="fc" id="L7">    private static final SecureRandom RANDOM = new SecureRandom();</span>
+    private TokenHash() { }
+    public static String random() {
+<span class="fc" id="L10">        byte[] data = new byte[32]; RANDOM.nextBytes(data);</span>
+<span class="fc" id="L11">        return Base64.getUrlEncoder().withoutPadding().encodeToString(data);</span>
+    }
+    public static String sha256(String token) {
+<span class="fc" id="L14">        try { return HexFormat.of().formatHex(MessageDigest.getInstance(&quot;SHA-256&quot;).digest(token.getBytes(StandardCharsets.UTF_8))); }</span>
+<span class="nc" id="L15">        catch (NoSuchAlgorithmException exception) { throw new IllegalStateException(exception); }</span>
+    }
+    public static boolean matches(String token, String expectedHash) {
+<span class="fc" id="L18">        return MessageDigest.isEqual(sha256(token).getBytes(StandardCharsets.US_ASCII), expectedHash.getBytes(StandardCharsets.US_ASCII));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

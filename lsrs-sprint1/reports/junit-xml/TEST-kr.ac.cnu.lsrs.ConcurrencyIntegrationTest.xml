@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:11:39.089Z" hostname="0594de84711d" time="7.953">
+  <properties/>
+  <testcase name="US04_concurrentPolicyChangesCannotOverwriteEachOther()" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.137"/>
+  <testcase name="US10_tenConcurrentCheckOutsCompleteOnlyOnce()" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.764"/>
+  <testcase name="repetition 1 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.658"/>
+  <testcase name="repetition 2 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.237"/>
+  <testcase name="repetition 3 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.845"/>
+  <testcase name="repetition 1 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.299"/>
+  <testcase name="repetition 2 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.218"/>
+  <testcase name="repetition 3 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.292"/>
+  <testcase name="US12_tenConcurrentCheckInsRemainIdempotent()" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.212"/>
+  <testcase name="repetition 1 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.513"/>
+  <testcase name="repetition 2 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="1.615"/>
+  <testcase name="repetition 3 of 3" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="1.478"/>
+  <testcase name="US01_concurrentVerificationConsumesTokenOnlyOnce()" classname="kr.ac.cnu.lsrs.ConcurrencyIntegrationTest" time="0.425"/>
+  <system-out><![CDATA[2026-11-14T07:11:39.081+09:00  WARN 193 --- [lsrs-sprint1] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : For test class [kr.ac.cnu.lsrs.ConcurrencyIntegrationTest], the following 'default' context configuration classes were detected but are currently ignored: kr.ac.cnu.lsrs.IntegrationSupport$TimeConfiguration. In Spring Framework 7.1, these classes will no longer be ignored. Please update your test configuration accordingly. For details, see: https://docs.spring.io/spring-framework/reference/testing/testcontext-framework/ctx-management/default-config.html
+US07_SAME_SEAT requests=20 success=1 conflicts=19 duplicate_allocations=0
+US07_SAME_SEAT requests=20 success=1 conflicts=19 duplicate_allocations=0
+US07_SAME_SEAT requests=20 success=1 conflicts=19 duplicate_allocations=0
+US07_SAME_STUDENT requests=20 success=1 conflicts=19 overlapping_reservations=0
+US07_SAME_STUDENT requests=20 success=1 conflicts=19 overlapping_reservations=0
+US07_SAME_STUDENT requests=20 success=1 conflicts=19 overlapping_reservations=0
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

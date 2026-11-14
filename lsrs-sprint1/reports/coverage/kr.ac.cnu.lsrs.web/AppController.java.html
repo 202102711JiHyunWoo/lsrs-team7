@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.web</a> &gt; <span class="el_source">AppController.java</span></div><h1>AppController.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.web;
+import kr.ac.cnu.lsrs.web.ApiDtos.AppInfo;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import java.time.Clock;
+
+@Controller
+public class AppController {
+    private final Clock clock; private final boolean demo, localMailbox; private final int pollingSeconds;
+    public AppController(Clock clock, @Value(&quot;${app.demo:false}&quot;) boolean demo,
+                         @Value(&quot;${app.mail.mode}&quot;) String mailMode, @Value(&quot;${app.polling-seconds}&quot;) int pollingSeconds,
+<span class="fc" id="L14">                         Environment environment) {</span>
+<span class="fc" id="L15">        this.clock = clock; this.demo = demo; this.pollingSeconds = pollingSeconds;</span>
+<span class="pc bpc" id="L16" title="2 of 4 branches missed.">        localMailbox = mailMode.equals(&quot;file&quot;) &amp;&amp; environment.acceptsProfiles(Profiles.of(&quot;local&quot;, &quot;demo&quot;));</span>
+<span class="fc" id="L17">    }</span>
+<span class="nc" id="L18">    @GetMapping({&quot;/&quot;, &quot;/admin&quot;}) public String home() { return &quot;index&quot;; }</span>
+<span class="nc" id="L19">    @GetMapping(&quot;/verify-email&quot;) public String verify() { return &quot;verify-email&quot;; }</span>
+    @GetMapping(&quot;/api/app-info&quot;) @ResponseBody
+<span class="nc" id="L21">    public AppInfo info() { return new AppInfo(clock.instant(), &quot;Asia/Seoul&quot;, demo, localMailbox, pollingSeconds); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

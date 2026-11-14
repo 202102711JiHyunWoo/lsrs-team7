@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VerificationMailGateway.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.service</a> &gt; <span class="el_source">VerificationMailGateway.java</span></div><h1>VerificationMailGateway.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.service;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.*;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
+import java.io.*;
+import java.nio.file.*;
+import java.time.*;
+import java.util.*;
+
+@Component
+public class VerificationMailGateway implements MailGateway {
+    private final String mode, baseUrl, from;
+    private final Path directory;
+    private final JavaMailSender mail;
+    private final Clock clock;
+    private final int verificationMinutes;
+    public VerificationMailGateway(@Value(&quot;${app.mail.mode}&quot;) String mode, @Value(&quot;${app.public-base-url}&quot;) String baseUrl,
+                                   @Value(&quot;${app.mail.from}&quot;) String from, @Value(&quot;${app.mail.outbox-directory}&quot;) String directory,
+                                   @Value(&quot;${app.mail.verification-minutes}&quot;) int verificationMinutes,
+<span class="fc" id="L23">                                   JavaMailSender mail, Clock clock, Environment environment) {</span>
+<span class="fc" id="L24">        this.verificationMinutes = verificationMinutes;</span>
+<span class="fc" id="L25">        this.mode = mode; this.baseUrl = baseUrl.replaceAll(&quot;/$&quot;, &quot;&quot;); this.from = from;</span>
+<span class="fc" id="L26">        this.directory = Path.of(directory); this.mail = mail; this.clock = clock;</span>
+<span class="pc bpc" id="L27" title="2 of 4 branches missed.">        if (mode.equals(&quot;file&quot;) &amp;&amp; !environment.acceptsProfiles(Profiles.of(&quot;local&quot;, &quot;demo&quot;, &quot;test&quot;)))</span>
+<span class="nc" id="L28">            throw new IllegalStateException(&quot;File mailbox is only available in local/demo/test profiles.&quot;);</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (!Set.of(&quot;smtp&quot;, &quot;file&quot;).contains(mode)) throw new IllegalStateException(&quot;Unknown mail mode: &quot; + mode);</span>
+<span class="fc" id="L30">    }</span>
+    @Override public String sendVerification(String email, String token) {
+<span class="fc" id="L32">        String link = baseUrl + &quot;/verify-email?token=&quot; + token;</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">        if (mode.equals(&quot;smtp&quot;)) {</span>
+<span class="nc" id="L34">            SimpleMailMessage message = new SimpleMailMessage();</span>
+<span class="nc" id="L35">            message.setFrom(from); message.setTo(email); message.setSubject(&quot;[LSRS] 이메일 인증을 완료해 주세요&quot;);</span>
+<span class="nc" id="L36">            message.setText(&quot;도서관 좌석 예약 시스템\n\n아래 링크에서 이메일 인증을 완료해 주세요.\n&quot; + link + &quot;\n\n인증 링크는 &quot; + verificationMinutes + &quot;분 동안 유효합니다.&quot;);</span>
+<span class="nc" id="L37">            mail.send(message); return &quot;SMTP_SENT&quot;;</span>
+        }
+        try {
+<span class="fc" id="L40">            Files.createDirectories(directory);</span>
+<span class="fc" id="L41">            Properties properties = new Properties();</span>
+<span class="fc" id="L42">            properties.setProperty(&quot;id&quot;, UUID.randomUUID().toString()); properties.setProperty(&quot;to&quot;, email);</span>
+<span class="fc" id="L43">            properties.setProperty(&quot;subject&quot;, &quot;[LSRS] 이메일 인증을 완료해 주세요&quot;);</span>
+<span class="fc" id="L44">            properties.setProperty(&quot;link&quot;, link); properties.setProperty(&quot;sentAt&quot;, clock.instant().toString());</span>
+<span class="fc" id="L45">            Path temporary = Files.createTempFile(directory, &quot;mail-&quot;, &quot;.tmp&quot;);</span>
+<span class="fc" id="L46">            try (Writer writer = Files.newBufferedWriter(temporary)) { properties.store(writer, &quot;LSRS local verification mail&quot;); }</span>
+<span class="fc" id="L47">            Files.move(temporary, directory.resolve(properties.getProperty(&quot;id&quot;) + &quot;.properties&quot;), StandardCopyOption.REPLACE_EXISTING);</span>
+<span class="fc" id="L48">            return &quot;LOCAL_MAILBOX&quot;;</span>
+<span class="nc" id="L49">        } catch (IOException exception) { throw new IllegalStateException(&quot;Could not save local verification mail&quot;, exception); }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

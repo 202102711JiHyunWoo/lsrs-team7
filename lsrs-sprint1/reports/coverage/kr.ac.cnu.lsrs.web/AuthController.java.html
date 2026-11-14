@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.web</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.web;
+
+import jakarta.validation.Valid;
+import kr.ac.cnu.lsrs.config.CurrentUser;
+import kr.ac.cnu.lsrs.service.*;
+import kr.ac.cnu.lsrs.web.ApiDtos.*;
+import org.slf4j.*;
+import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class AuthController {
+<span class="fc" id="L15">    private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);</span>
+    private final AuthService auth;
+    private final MailGateway mail;
+<span class="fc" id="L18">    public AuthController(AuthService auth, MailGateway mail) { this.auth = auth; this.mail = mail; }</span>
+    @PostMapping(&quot;/users&quot;)
+    public ResponseEntity&lt;RegistrationView&gt; register(@Valid @RequestBody RegisterRequest request) {
+<span class="fc" id="L21">        AuthService.PendingMail pending = auth.register(request);</span>
+<span class="fc" id="L22">        String delivery = deliver(pending);</span>
+<span class="fc" id="L23">        return ResponseEntity.status(HttpStatus.CREATED).body(new RegistrationView(pending.user(), delivery,</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">                delivery.equals(&quot;FAILED&quot;) ? &quot;계정이 생성되었으나 메일 발송에 실패했습니다. 잠시 후 인증 메일을 다시 요청해 주세요.&quot; :</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">                        delivery.equals(&quot;LOCAL_MAILBOX&quot;) ? &quot;계정이 생성되었습니다. 개발용 메일함에서 이메일 인증을 완료해 주세요.&quot; : &quot;인증 메일을 보냈습니다. 메일함을 확인해 주세요.&quot;));</span>
+    }
+    @PostMapping(&quot;/email-verifications&quot;)
+<span class="fc" id="L28">    public UserView verify(@Valid @RequestBody VerificationRequest request) { return auth.verify(request.token()); }</span>
+    @PostMapping(&quot;/email-verifications/resend&quot;)
+    public MessageView resend(@Valid @RequestBody ResendRequest request) {
+<span class="fc" id="L31">        AuthService.PendingMail pending = auth.resend(request.email());</span>
+<span class="pc bpc" id="L32" title="1 of 4 branches missed.">        if (pending != null &amp;&amp; deliver(pending).equals(&quot;FAILED&quot;))</span>
+<span class="nc" id="L33">            throw new BusinessException(HttpStatus.SERVICE_UNAVAILABLE, &quot;MAIL_UNAVAILABLE&quot;, &quot;메일을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.&quot;);</span>
+<span class="fc" id="L34">        return new MessageView(&quot;인증 대기 중인 계정이면 인증 메일을 발송했습니다. 메일함을 확인해 주세요.&quot;);</span>
+    }
+    private String deliver(AuthService.PendingMail pending) {
+<span class="fc" id="L37">        try { return mail.sendVerification(pending.user().email(), pending.token()); }</span>
+<span class="nc" id="L38">        catch (RuntimeException exception) {</span>
+<span class="nc" id="L39">            LOG.warn(&quot;Verification email delivery failed: {}&quot;, exception.getClass().getSimpleName());</span>
+<span class="nc" id="L40">            return &quot;FAILED&quot;;</span>
+        }
+    }
+    @PostMapping(&quot;/auth/tokens&quot;)
+<span class="fc" id="L44">    public LoginView login(@Valid @RequestBody LoginRequest request) { return auth.login(request); }</span>
+    @GetMapping(&quot;/me&quot;)
+<span class="fc" id="L46">    public UserView me(@AuthenticationPrincipal CurrentUser user) { return auth.me(user.id()); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

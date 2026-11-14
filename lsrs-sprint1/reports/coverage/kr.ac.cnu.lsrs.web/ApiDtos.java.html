@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiDtos.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.web</a> &gt; <span class="el_source">ApiDtos.java</span></div><h1>ApiDtos.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.web;
+
+import jakarta.validation.constraints.*;
+import kr.ac.cnu.lsrs.domain.*;
+import java.time.*;
+import java.util.*;
+
+public final class ApiDtos {
+    private ApiDtos() { }
+<span class="fc" id="L10">    public record RegisterRequest(</span>
+            String studentNo,
+            @NotBlank @Email @Size(max = 254) String email,
+            @NotBlank @Size(min = 8, max = 72) String password,
+            @Pattern(regexp = &quot;STUDENT|ADMIN&quot;) String requestedRole) { }
+<span class="fc" id="L15">    public record LoginRequest(@NotBlank @Size(max = 254) String identifier,</span>
+                               @NotBlank @Size(max = 100) String password) { }
+<span class="fc" id="L17">    public record VerificationRequest(@NotBlank @Size(max = 128) String token) { }</span>
+<span class="fc" id="L18">    public record ResendRequest(@NotBlank @Email @Size(max = 254) String email) { }</span>
+<span class="fc" id="L19">    public record ReservationRequest(@NotNull @Positive Long seatId,</span>
+                                     @NotNull OffsetDateTime startAt,
+                                     @NotNull OffsetDateTime endAt,
+                                     @NotNull @Positive Long policyVersion) { }
+<span class="fc" id="L23">    public record CheckInRequest(@NotBlank @Size(max = 256) String qrToken) { }</span>
+<span class="fc" id="L24">    public record PolicyModeRequest(@NotNull PolicyVersion.Mode mode,</span>
+                                    @NotNull @Positive Long versionNo) { }
+<span class="fc" id="L26">    public record UserView(Long id, String studentNo, String email, AppUser.Role role,</span>
+                           AppUser.Status status, Instant restrictedUntil) {
+        public static UserView of(AppUser user) {
+<span class="fc" id="L29">            return new UserView(user.getId(), user.getStudentNo(), user.getEmail(),</span>
+<span class="fc" id="L30">                    user.getRole(), user.getStatus(), user.getRestrictedUntil());</span>
+        }
+    }
+<span class="fc" id="L33">    public record RegistrationView(UserView user, String deliveryStatus, String message) { }</span>
+<span class="fc" id="L34">    public record LoginView(String accessToken, String tokenType, Instant expiresAt, UserView user) { }</span>
+<span class="fc" id="L35">    public record MessageView(String message) { }</span>
+<span class="fc" id="L36">    public record PolicyView(Long id, long versionNo, PolicyVersion.Mode mode, int maxMinutes,</span>
+                             int normalMaxMinutes, int examMaxMinutes, int reservationUnitMinutes,
+                             int graceMinutes, int noShowThreshold, int restrictionDays) {
+        public static PolicyView of(PolicyVersion policy) {
+<span class="fc" id="L40">            return new PolicyView(policy.getId(), policy.getVersionNo(), policy.getMode(), policy.getMaxMinutes(),</span>
+<span class="fc" id="L41">                    policy.getNormalMaxMinutes(), policy.getExamMaxMinutes(), policy.getReservationUnitMinutes(),</span>
+<span class="fc" id="L42">                    policy.getGraceMinutes(), policy.getNoShowThreshold(), policy.getRestrictionDays());</span>
+        }
+    }
+<span class="fc" id="L45">    public record SeatView(Long id, String code, String zone, String displayStatus, boolean available) { }</span>
+<span class="fc" id="L46">    public record SeatsView(List&lt;SeatView&gt; seats, int availableCount, PolicyView policy, Instant serverTime) { }</span>
+<span class="fc" id="L47">    public record ReservationView(Long id, Long seatId, String seatCode, String zone,</span>
+                                  Instant startAt, Instant endAt, Instant checkInDeadlineAt,
+                                  Instant checkedInAt, Instant completedAt, Reservation.Status status,
+                                  long policyVersion) {
+        public static ReservationView of(Reservation reservation) {
+<span class="fc" id="L52">            return new ReservationView(reservation.getId(), reservation.getSeat().getId(),</span>
+<span class="fc" id="L53">                    reservation.getSeat().getCode(), reservation.getSeat().getZone(),</span>
+<span class="fc" id="L54">                    reservation.getStartAt(), reservation.getEndAt(), reservation.getCheckInDeadlineAt(),</span>
+<span class="fc" id="L55">                    reservation.getCheckedInAt(), reservation.getCompletedAt(), reservation.getStatus(),</span>
+<span class="fc" id="L56">                    reservation.getPolicy().getVersionNo());</span>
+        }
+    }
+<span class="nc" id="L59">    public record AppInfo(Instant serverTime, String timeZone, boolean demo, boolean localMailbox, int pollingSeconds) { }</span>
+<span class="fc" id="L60">    public record ErrorView(String code, String message, Map&lt;String, String&gt; fieldErrors,</span>
+                            Map&lt;String, Object&gt; details, String requestId) { }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

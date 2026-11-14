@@ -1,0 +1,25 @@
+{
+  "passed": 13,
+  "failed": 0,
+  "checks": [
+    "desktop landing and local assets",
+    "signup, unverified login rejection, local email verification",
+    "48-seat grid, four states, refresh preserves selectable booking",
+    "changed time requires a fresh query",
+    "booking confirmation and server ownership/overlap enforcement",
+    "camera denial, wrong QR and correct QR image check-in",
+    "early checkout releases the seat",
+    "fully booked grid shows zero availability and an empty-availability explanation",
+    "failed seat lookup never displays false availability",
+    "administrator mode update reaches student policy display",
+    "390px mobile layout, dialog and keyboard focus",
+    "live camera pipeline decodes QR and stops camera after check-in",
+    "no uncaught JavaScript errors"
+  ],
+  "pageErrors": [],
+  "viewport": [
+    "1440x1100",
+    "390x844"
+  ],
+  "camera": "Chromium synthetic Y4M input; physical camera not tested"
+}

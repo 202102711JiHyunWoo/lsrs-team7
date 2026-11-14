@@ -1,0 +1,91 @@
+{
+  "junit": [
+    {
+      "name": "AuthIntegrationTest",
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ConcurrencyIntegrationTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "PolicyIntegrationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "ReservationIntegrationTest",
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "browser": {
+    "passed": 13,
+    "failed": 0,
+    "checks": [
+      "desktop landing and local assets",
+      "signup, unverified login rejection, local email verification",
+      "48-seat grid, four states, refresh preserves selectable booking",
+      "changed time requires a fresh query",
+      "booking confirmation and server ownership/overlap enforcement",
+      "camera denial, wrong QR and correct QR image check-in",
+      "early checkout releases the seat",
+      "fully booked grid shows zero availability and an empty-availability explanation",
+      "failed seat lookup never displays false availability",
+      "administrator mode update reaches student policy display",
+      "390px mobile layout, dialog and keyboard focus",
+      "live camera pipeline decodes QR and stops camera after check-in",
+      "no uncaught JavaScript errors"
+    ],
+    "pageErrors": [],
+    "viewport": [
+      "1440x1100",
+      "390x844"
+    ],
+    "camera": "Chromium synthetic Y4M input; physical camera not tested"
+  },
+  "runtime": {
+    "passed": 10,
+    "failed": 0,
+    "checks": [
+      "local mode uses actual time and hides development mailbox in SMTP mode",
+      "real JavaMailSender SMTP delivery creates pending account",
+      "SMTP token verification activates account",
+      "HTTP reservation persists with authoritative policy snapshot",
+      "admin policy updates through HTTP",
+      "file DB restart retains account and existing JWT",
+      "file DB restart retains reservation and policy",
+      "persistent signing key and QR survive restart",
+      "SMTP rejection keeps retryable pending account without false success",
+      "100 authenticated seat queries return successful real data"
+    ],
+    "latency": {
+      "requests": 100,
+      "warmup": 10,
+      "seatCount": 48,
+      "meanMs": 18.84,
+      "p95Ms": 74.98,
+      "maxMs": 135.75,
+      "note": "Serial localhost authenticated HTTP; exploratory measurement only. US05 load acceptance is Sprint 2."
+    },
+    "smtp": "Local scripted TCP SMTP receiver; no external mail sent",
+    "persistence": "H2 file DB + persistent random key; two app startups"
+  },
+  "coverage": {
+    "linePercent": 83.88,
+    "branchPercent": 70.67,
+    "serviceLinePercent": 94.15
+  },
+  "jarSha256": "d6e044d6c6e517bd232c20815c2d577710954c0d1ababcb0eff32deaba5eecc3",
+  "collectedAt": "2026-11-14 07:14 KST"
+}

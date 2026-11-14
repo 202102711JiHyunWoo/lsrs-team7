@@ -1,0 +1,11 @@
+package kr.ac.cnu.lsrs;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class LsrsApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(LsrsApplication.class, args);
+    }
+}

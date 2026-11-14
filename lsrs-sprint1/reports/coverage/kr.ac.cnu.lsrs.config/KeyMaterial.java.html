@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeyMaterial.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.config</a> &gt; <span class="el_source">KeyMaterial.java</span></div><h1>KeyMaterial.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.config;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.*;
+import org.springframework.stereotype.Component;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
+import kr.ac.cnu.lsrs.service.TokenHash;
+
+@Component
+public class KeyMaterial {
+    private final byte[] secret;
+    public KeyMaterial(@Value(&quot;${app.jwt.secret:}&quot;) String configured,
+<span class="fc" id="L16">                       @Value(&quot;${app.jwt.key-file}&quot;) String keyFile, Environment environment) throws IOException {</span>
+<span class="fc" id="L17">        String value = configured;</span>
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if (value.isBlank()) {</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">            if (!environment.acceptsProfiles(Profiles.of(&quot;local&quot;, &quot;demo&quot;)))</span>
+<span class="nc" id="L20">                throw new IllegalStateException(&quot;LSRS_JWT_SECRET must be configured outside local/demo profiles.&quot;);</span>
+<span class="nc" id="L21">            Path path = Path.of(keyFile).toAbsolutePath();</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">            if (Files.exists(path)) value = Files.readString(path).trim();</span>
+            else {
+<span class="nc" id="L24">                Files.createDirectories(path.getParent()); value = TokenHash.random();</span>
+<span class="nc" id="L25">                Files.writeString(path, value, StandardOpenOption.CREATE_NEW);</span>
+<span class="nc" id="L26">                try { Files.setPosixFilePermissions(path, Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)); }</span>
+<span class="nc" id="L27">                catch (UnsupportedOperationException ignored) { /* Windows uses inherited ACLs. */ }</span>
+            }
+        }
+<span class="fc" id="L30">        secret = value.getBytes(StandardCharsets.UTF_8);</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        if (secret.length &lt; 32) throw new IllegalStateException(&quot;JWT signing key must contain at least 32 bytes.&quot;);</span>
+<span class="fc" id="L32">    }</span>
+<span class="fc" id="L33">    public byte[] bytes() { return secret.clone(); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

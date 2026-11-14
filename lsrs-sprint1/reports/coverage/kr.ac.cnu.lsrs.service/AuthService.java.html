@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lsrs-sprint1</a> &gt; <a href="index.source.html" class="el_package">kr.ac.cnu.lsrs.service</a> &gt; <span class="el_source">AuthService.java</span></div><h1>AuthService.java</h1><pre class="source lang-java linenums">package kr.ac.cnu.lsrs.service;
+
+import kr.ac.cnu.lsrs.domain.*;
+import kr.ac.cnu.lsrs.repository.*;
+import kr.ac.cnu.lsrs.web.ApiDtos.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.*;
+import java.nio.charset.StandardCharsets;
+import java.time.*;
+import java.util.*;
+
+@Service
+public class AuthService {
+<span class="fc" id="L19">    public record PendingMail(UserView user, String token) { }</span>
+    private final AppUserRepository users;
+    private final EmailVerificationRepository verifications;
+    private final PasswordEncoder passwords;
+    private final JwtEncoder encoder;
+    private final Clock clock;
+    private final Set&lt;String&gt; adminEmails;
+    private final long verificationMinutes;
+    private final long jwtMinutes;
+    private final String issuer;
+    public AuthService(AppUserRepository users, EmailVerificationRepository verifications, PasswordEncoder passwords,
+                       JwtEncoder encoder, Clock clock, @Value(&quot;${app.admin-emails:}&quot;) String adminEmails,
+                       @Value(&quot;${app.mail.verification-minutes}&quot;) long verificationMinutes,
+<span class="fc" id="L32">                       @Value(&quot;${app.jwt.lifetime-minutes}&quot;) long jwtMinutes, @Value(&quot;${app.jwt.issuer}&quot;) String issuer) {</span>
+<span class="fc" id="L33">        this.users = users; this.verifications = verifications; this.passwords = passwords; this.encoder = encoder; this.clock = clock;</span>
+<span class="fc" id="L34">        this.adminEmails = new HashSet&lt;&gt;();</span>
+<span class="pc bpc" id="L35" title="1 of 4 branches missed.">        for (String email : adminEmails.split(&quot;,&quot;)) if (!email.isBlank()) this.adminEmails.add(normalize(email));</span>
+<span class="fc" id="L36">        this.verificationMinutes = verificationMinutes; this.jwtMinutes = jwtMinutes; this.issuer = issuer;</span>
+<span class="fc" id="L37">    }</span>
+<span class="fc" id="L38">    public static String normalize(String email) { return email.strip().toLowerCase(Locale.ROOT); }</span>
+
+    @Transactional
+    public PendingMail register(RegisterRequest request) {
+<span class="fc" id="L42">        String email = normalize(request.email());</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (request.password().getBytes(StandardCharsets.UTF_8).length &gt; 72 ||</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">                !request.password().matches(&quot;(?s)^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[^A-Za-z0-9\\s])[^\\s]{8,72}$&quot;))</span>
+<span class="fc" id="L45">            throw BusinessException.bad(&quot;비밀번호는 영문·숫자·특수문자를 포함해 8자 이상, UTF-8 72바이트 이내로 입력해 주세요.&quot;);</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        AppUser.Role role = &quot;ADMIN&quot;.equals(request.requestedRole()) ? AppUser.Role.ADMIN : AppUser.Role.STUDENT;</span>
+<span class="fc bfc" id="L47" title="All 4 branches covered.">        if (role == AppUser.Role.ADMIN &amp;&amp; !adminEmails.contains(email))</span>
+<span class="fc" id="L48">            throw BusinessException.forbidden(&quot;관리자로 사전 등록된 이메일만 관리자 가입을 할 수 있습니다.&quot;);</span>
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">        String studentNo = request.studentNo() == null || request.studentNo().isBlank() ? null : request.studentNo().strip();</span>
+<span class="pc bpc" id="L50" title="1 of 8 branches missed.">        if ((role == AppUser.Role.STUDENT &amp;&amp; studentNo == null) || (studentNo != null &amp;&amp; !studentNo.matches(&quot;[0-9]{8,12}&quot;)))</span>
+<span class="fc" id="L51">            throw BusinessException.bad(&quot;학생 학번을 숫자 8~12자리로 입력해 주세요.&quot;);</span>
+<span class="fc bfc" id="L52" title="All 6 branches covered.">        if (users.existsByEmail(email) || (studentNo != null &amp;&amp; users.existsByStudentNo(studentNo)))</span>
+<span class="fc" id="L53">            throw BusinessException.conflict(&quot;DUPLICATE_ACCOUNT&quot;, &quot;이미 등록된 이메일 또는 학번입니다.&quot;);</span>
+<span class="fc" id="L54">        AppUser user = users.saveAndFlush(new AppUser(studentNo, email, passwords.encode(request.password()), role, clock.instant()));</span>
+<span class="fc" id="L55">        return issue(user);</span>
+    }
+    private PendingMail issue(AppUser user) {
+<span class="fc" id="L58">        String token = TokenHash.random(); Instant now = clock.instant();</span>
+<span class="fc" id="L59">        verifications.save(new EmailVerification(user, TokenHash.sha256(token), now, now.plusSeconds(verificationMinutes * 60)));</span>
+<span class="fc" id="L60">        return new PendingMail(UserView.of(user), token);</span>
+    }
+    @Transactional
+    public PendingMail resend(String rawEmail) {
+<span class="fc" id="L64">        AppUser candidate = users.findByEmail(normalize(rawEmail)).orElse(null);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (candidate == null) return null;</span>
+<span class="fc" id="L66">        AppUser user = users.findLockedById(candidate.getId()).orElseThrow(BusinessException::missing);</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (user.getStatus() == AppUser.Status.ACTIVE) return null;</span>
+<span class="fc" id="L68">        var latest = verifications.findFirstByUserIdOrderByCreatedAtDesc(user.getId());</span>
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        if (latest.isPresent() &amp;&amp; clock.instant().isBefore(latest.get().getCreatedAt().plusSeconds(60)))</span>
+<span class="fc" id="L70">            throw new BusinessException(HttpStatus.TOO_MANY_REQUESTS, &quot;RESEND_TOO_SOON&quot;, &quot;인증 메일은 1분 후 다시 요청할 수 있습니다.&quot;);</span>
+<span class="fc" id="L71">        verifications.invalidateUnused(user.getId(), clock.instant());</span>
+<span class="fc" id="L72">        return issue(user);</span>
+    }
+    @Transactional
+    public UserView verify(String token) {
+<span class="fc" id="L76">        String hash = TokenHash.sha256(token);</span>
+<span class="fc" id="L77">        long userId = verifications.findUserIdByTokenHash(hash).orElseThrow(() -&gt; BusinessException.bad(&quot;유효하지 않은 이메일 인증 링크입니다.&quot;));</span>
+<span class="fc" id="L78">        AppUser user = users.findLockedById(userId).orElseThrow(BusinessException::missing);</span>
+<span class="fc" id="L79">        EmailVerification verification = verifications.findLockedByTokenHash(hash).orElseThrow(BusinessException::missing);</span>
+<span class="fc" id="L80">        Instant now = clock.instant();</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (verification.getConsumedAt() != null)</span>
+<span class="fc" id="L82">            throw BusinessException.conflict(&quot;VERIFICATION_USED&quot;, &quot;이미 사용한 인증 링크입니다. 인증이 완료되었다면 로그인해 주세요.&quot;);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (!now.isBefore(verification.getExpiresAt()))</span>
+<span class="fc" id="L84">            throw BusinessException.conflict(&quot;VERIFICATION_EXPIRED&quot;, &quot;이메일 인증 링크가 만료되었습니다. 인증 메일을 다시 요청해 주세요.&quot;);</span>
+<span class="fc" id="L85">        verification.consume(now); user.activate();</span>
+<span class="fc" id="L86">        return UserView.of(user);</span>
+    }
+    @Transactional(readOnly = true)
+    public LoginView login(LoginRequest request) {
+<span class="fc" id="L90">        String identifier = normalize(request.identifier());</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        AppUser user = (identifier.contains(&quot;@&quot;) ? users.findByEmail(identifier) : users.findByStudentNo(identifier)).orElse(null);</span>
+<span class="pc bpc" id="L92" title="1 of 6 branches missed.">        boolean valid = user != null &amp;&amp; request.password().getBytes(StandardCharsets.UTF_8).length &lt;= 72 &amp;&amp; passwords.matches(request.password(), user.getPasswordHash());</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (!valid) throw new BusinessException(HttpStatus.UNAUTHORIZED, &quot;INVALID_CREDENTIALS&quot;, &quot;학번·이메일 또는 비밀번호가 올바르지 않습니다.&quot;);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">        if (user.getStatus() != AppUser.Status.ACTIVE)</span>
+<span class="fc" id="L95">            throw new BusinessException(HttpStatus.FORBIDDEN, &quot;EMAIL_UNVERIFIED&quot;, &quot;이메일 인증을 완료한 후 로그인해 주세요.&quot;);</span>
+<span class="fc" id="L96">        Instant now = clock.instant(), expiry = now.plusSeconds(jwtMinutes * 60);</span>
+<span class="fc" id="L97">        JwtClaimsSet claims = JwtClaimsSet.builder().issuer(issuer).subject(user.getId().toString()).issuedAt(now)</span>
+<span class="fc" id="L98">                .expiresAt(expiry).claim(&quot;role&quot;, user.getRole().name()).build();</span>
+<span class="fc" id="L99">        String token = encoder.encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims)).getTokenValue();</span>
+<span class="fc" id="L100">        return new LoginView(token, &quot;Bearer&quot;, expiry, UserView.of(user));</span>
+    }
+    @Transactional(readOnly = true)
+<span class="fc" id="L103">    public UserView me(long userId) { return UserView.of(users.findById(userId).orElseThrow(BusinessException::missing)); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

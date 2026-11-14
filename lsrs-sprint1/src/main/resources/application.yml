@@ -1,0 +1,67 @@
+server:
+  port: ${PORT:8080}
+  address: ${SERVER_ADDRESS:127.0.0.1}
+  error:
+    include-message: never
+    include-stacktrace: never
+spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  application:
+    name: lsrs-sprint1
+  profiles:
+    default: local
+  datasource:
+    url: ${LSRS_DB_URL:jdbc:h2:file:./data/lsrs;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000}
+    username: sa
+    password: ${LSRS_DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: 20
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  thymeleaf:
+    cache: true
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${SMTP_STARTTLS:false}
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 5000
+      mail.smtp.writetimeout: 5000
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+logging:
+  level:
+    org.hibernate.orm.deprecation: ERROR
+app:
+  public-base-url: ${LSRS_PUBLIC_BASE_URL:http://localhost:8080}
+  jwt:
+    secret: ${LSRS_JWT_SECRET:}
+    key-file: ${LSRS_JWT_KEY_FILE:./data/jwt.key}
+    issuer: lsrs-team7
+    lifetime-minutes: 60
+  mail:
+    mode: ${LSRS_MAIL_MODE:smtp}
+    from: ${SMTP_FROM:library@example.test}
+    outbox-directory: ${LSRS_OUTBOX_DIR:./data/mailbox}
+    verification-minutes: 30
+  admin-emails: ${LSRS_ADMIN_EMAILS:}
+  initial-policy-mode: ${LSRS_POLICY_MODE:NORMAL}
+  polling-seconds: 5
+  demo: false

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "launcher": "start-demo.sh",
+  "jarSource": "dist (no build directory or Gradle cache)",
+  "seatCount": 48,
+  "availableCount": 46,
+  "demoQrMatches": [
+    "C03",
+    "C04"
+  ],
+  "studentLogin": 200,
+  "adminLogin": 200
+}

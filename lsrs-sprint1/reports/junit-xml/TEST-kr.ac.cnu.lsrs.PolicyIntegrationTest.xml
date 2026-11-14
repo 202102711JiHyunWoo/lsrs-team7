@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="kr.ac.cnu.lsrs.PolicyIntegrationTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:11:47.083Z" hostname="0594de84711d" time="2.154">
+  <properties/>
+  <testcase name="US04_staleClientPolicyCannotCreateReservation()" classname="kr.ac.cnu.lsrs.PolicyIntegrationTest" time="0.636"/>
+  <testcase name="US04_modeChangesDoNotModifyExistingCheckInDeadline()" classname="kr.ac.cnu.lsrs.PolicyIntegrationTest" time="0.481"/>
+  <testcase name="US04_invalidModeIsRejectedWithoutChangingPolicy()" classname="kr.ac.cnu.lsrs.PolicyIntegrationTest" time="0.242"/>
+  <testcase name="US04_currentModeUpdateIsIdempotentAndOldVersionIsRejected()" classname="kr.ac.cnu.lsrs.PolicyIntegrationTest" time="0.257"/>
+  <testcase name="US04_normalPolicyIsVisibleToAuthenticatedStudent()" classname="kr.ac.cnu.lsrs.PolicyIntegrationTest" time="0.212"/>
+  <testcase name="US04_adminModeSwitchChangesBothDisplayedPolicyAndReservationValidation()" classname="kr.ac.cnu.lsrs.PolicyIntegrationTest" time="0.275"/>
+  <system-out><![CDATA[2026-11-14T07:11:47.073+09:00  WARN 193 --- [lsrs-sprint1] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : For test class [kr.ac.cnu.lsrs.PolicyIntegrationTest], the following 'default' context configuration classes were detected but are currently ignored: kr.ac.cnu.lsrs.IntegrationSupport$TimeConfiguration. In Spring Framework 7.1, these classes will no longer be ignored. Please update your test configuration accordingly. For details, see: https://docs.spring.io/spring-framework/reference/testing/testcontext-framework/ctx-management/default-config.html
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
