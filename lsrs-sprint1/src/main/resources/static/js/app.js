@@ -250,6 +250,10 @@
         card.append(element('p', 'deadline', `${timeOf(reservation.checkInDeadlineAt)}까지 체크인해 주세요`));
         const button = element('button', 'button button-secondary button-full', 'QR 체크인'); button.type = 'button';
         button.addEventListener('click', () => openCheckIn(reservation)); card.append(button);
+        const cancelButton = element('button', 'button button-subtle button-full', '예약 취소');
+        cancelButton.type = 'button';
+        cancelButton.addEventListener('click', () => confirmCancellation(reservation));
+        card.append(cancelButton);
       } else {
         const button = element('button', 'button button-secondary button-full', '퇴실하고 좌석 반환'); button.type = 'button';
         button.addEventListener('click', () => confirmExit(reservation)); card.append(button);
@@ -279,6 +283,16 @@
     confirmation('이용을 마치셨나요?', `${reservation.seatCode} 좌석의 남은 시간을 반환합니다.\n퇴실 후 다른 학생이 이 좌석을 예약할 수 있어요.`, '퇴실 확정', async () => {
       await api(`/api/reservations/${reservation.id}/check-outs`, { method: 'POST' });
       $('#confirm-dialog').close(); toast(`${reservation.seatCode} 좌석 반환을 완료했어요.`); window.location.reload();
+    });
+  }
+
+  function confirmCancellation(reservation) {
+    confirmation('예약을 취소할까요?', `${reservation.seatCode} 좌석 예약을 취소합니다.\n취소하면 다른 학생이 이 좌석을 예약할 수 있어요.`, '예약 취소', async () => {
+      await api(`/api/reservations/${reservation.id}/cancellations`, { method: 'POST' });
+      $('#confirm-dialog').close();
+      state.selected = null;
+      toast('예약이 취소되었습니다.');
+      await refreshData(true);
     });
   }
 
