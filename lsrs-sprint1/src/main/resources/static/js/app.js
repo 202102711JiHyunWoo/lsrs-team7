@@ -278,7 +278,7 @@
   function confirmExit(reservation) {
     confirmation('이용을 마치셨나요?', `${reservation.seatCode} 좌석의 남은 시간을 반환합니다.\n퇴실 후 다른 학생이 이 좌석을 예약할 수 있어요.`, '퇴실 확정', async () => {
       await api(`/api/reservations/${reservation.id}/check-outs`, { method: 'POST' });
-      $('#confirm-dialog').close(); toast(`${reservation.seatCode} 좌석 반환을 완료했어요.`); await refreshData(true);
+      $('#confirm-dialog').close(); toast(`${reservation.seatCode} 좌석 반환을 완료했어요.`); window.location.reload();
     });
   }
 
