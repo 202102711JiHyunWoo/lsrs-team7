@@ -4,17 +4,18 @@
 
 Java 21 · Spring Boot · Spring Security/JWT · Thymeleaf/JavaScript · Spring Data JPA · H2 · Gradle Wrapper로 구성했습니다. 화면의 예약·체크인·퇴실은 실제 서버와 DB를 사용합니다.
 
+Start-local 파일 기준으로 수정합니다.
+
 ## 1. 가장 빠르게 실행하기 — Windows
 
 1. ZIP을 **압축 해제**합니다. ZIP 안에서 바로 실행하지 마세요.
 2. JDK 21을 설치하고 `java -version`이 21인지 확인합니다.
-3. 프로젝트 폴더의 **`start-demo.bat`**를 실행합니다.
+3. 프로젝트 폴더의 **`start-local.bat`**를 실행합니다.
 4. 서버 초기화가 끝날 때까지 잠시 기다린 뒤 **http://localhost:8080** 으로 접속합니다.
-5. **학생으로 체험**을 누릅니다. 관리자 기능은 별도의 탭에서 **관리자로 체험**을 누르면 됩니다.
 
 이미 빌드한 `dist/lsrs-sprint1.jar`를 포함하므로 시연 실행에는 Gradle·Node.js·Python 설치나 의존성 다운로드가 필요하지 않습니다. Java 21은 필요합니다. 종료할 때 실행 창에서 `Ctrl+C`를 누릅니다.
 
-macOS/Linux에서는 프로젝트 폴더에서 `sh start-demo.sh`를 실행합니다.
+macOS/Linux에서는 프로젝트 폴더에서 `sh start-local.sh`를 실행합니다.
 
 ### 시연 계정
 
@@ -22,9 +23,12 @@ macOS/Linux에서는 프로젝트 폴더에서 `sh start-demo.sh`를 실행합�
 |---|---|---|---|
 | 학생 | student@example.test | Demo1234! | 자유롭게 조회·예약·체크인·퇴실 |
 | 관리자 | admin@example.test | Demo1234! | 평상시/시험기간 전환, 좌석 QR 다운로드 |
+| 관리자 | jihyunwoo@example.test | | 
 | 다른 학생 | other@example.test | Demo1234! | A02 사용 중 상태 시연 |
 | 입실 대기 학생 | reserved@example.test | Demo1234! | A05 예약됨 상태 시연 |
 
+
+start-demo 기준 (테스트 시연 체킹 용도)
 **시연 모드의 시각은 2026-11-14 10:00, 한국 시간으로 고정됩니다.** 언제 실행해도 시작 시각·체크인 기한 때문에 시연이 막히지 않도록 만든 별도 모드입니다. 화면에도 고정 시각을 표시합니다. 시간 흐름에 따른 만료를 시연하는 모드는 아닙니다.
 
 시연 DB는 `data/demo/`에 저장되므로 재실행해도 변경 사항이 남습니다. 완전히 초기화하려면 **서버를 종료한 후** `data/demo/` 폴더만 지웁니다. 첫 실행 시 A02·A05의 시연 예약이 생성됩니다. 다른 실행 창에서 같은 DB를 동시에 열지 마세요.
