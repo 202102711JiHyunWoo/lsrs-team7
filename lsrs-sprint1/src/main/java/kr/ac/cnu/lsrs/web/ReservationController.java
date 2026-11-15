@@ -22,5 +22,14 @@ public class ReservationController {
     @GetMapping("/reservations/{id}")
     public ReservationView detail(@AuthenticationPrincipal CurrentUser user, @PathVariable long id) { return reservations.detail(user.id(), id); }
     @PostMapping("/reservations/{id}/check-outs")
-    public ReservationView checkOut(@AuthenticationPrincipal CurrentUser user, @PathVariable long id) { return reservations.checkOut(user.id(), id); }
+    public ReservationView checkOut(@AuthenticationPrincipal CurrentUser user, @PathVariable long id) {
+        return reservations.checkOut(user.id(), id);
+    }
+
+    @PostMapping("/reservations/{id}/cancellations")
+    public ReservationView cancel(
+            @AuthenticationPrincipal CurrentUser user,
+            @PathVariable long id) {
+        return reservations.cancel(user.id(), id);
+    }
 }
