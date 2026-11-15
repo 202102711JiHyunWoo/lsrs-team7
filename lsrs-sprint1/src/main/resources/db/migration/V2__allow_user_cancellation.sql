@@ -1,0 +1,18 @@
+-- Keep V1 unchanged: extend the status check without deleting existing data.
+ALTER TABLE reservation ADD CONSTRAINT chk_reservation_status_v2
+    CHECK (status IN ('RESERVED','CHECKED_IN','COMPLETED','AUTO_CANCELLED','CANCELLED'));
+
+-- V1 used an automatically generated name. Find only its old status check.
+EXECUTE IMMEDIATE 'ALTER TABLE reservation DROP CONSTRAINT ' || QUOTE_IDENT((
+    SELECT tc.CONSTRAINT_NAME
+    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+    JOIN INFORMATION_SCHEMA.CHECK_CONSTRAINTS cc
+      ON tc.CONSTRAINT_SCHEMA = cc.CONSTRAINT_SCHEMA
+     AND tc.CONSTRAINT_NAME = cc.CONSTRAINT_NAME
+    WHERE tc.TABLE_SCHEMA = CURRENT_SCHEMA()
+      AND tc.TABLE_NAME = 'RESERVATION'
+      AND tc.CONSTRAINT_TYPE = 'CHECK'
+      AND cc.CHECK_CLAUSE LIKE '%''RESERVED''%'
+      AND cc.CHECK_CLAUSE LIKE '%''AUTO_CANCELLED''%'
+      AND tc.CONSTRAINT_NAME <> 'CHK_RESERVATION_STATUS_V2'
+));
