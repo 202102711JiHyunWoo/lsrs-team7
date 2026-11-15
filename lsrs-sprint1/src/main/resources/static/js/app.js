@@ -31,6 +31,10 @@
   }
   function dateOf(value) { const p = parts(value); return `${p.year}-${p.month}-${p.day}`; }
   function timeOf(value) { const p = parts(value); return `${p.hour}:${p.minute}`; }
+  function reservationEndTime(reservation) {
+    const end = timeOf(reservation.endAt);
+    return end === '00:00' && dateOf(reservation.startAt) !== dateOf(reservation.endAt) ? '24:00' : end;
+  }
   function dateLabel(value) {
     return new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'short' })
       .format(new Date(value));
@@ -118,9 +122,9 @@
     const exact = Number(p.minute) % 30 === 0 && new Date(now).getUTCSeconds() === 0 && new Date(now).getUTCMilliseconds() === 0;
     minute = exact ? minute : Math.ceil((minute + 0.01) / 30) * 30;
     let date = dateOf(now);
-    if (minute >= 1410) { date = dateOf(now + 86400000); minute = 9 * 60; }
+    if (minute >= 1440) { date = dateOf(now + 86400000); minute = 9 * 60; }
     $('#date').min = dateOf(now); $('#date').value = date;
-    for (const [id, first, last] of [['#start-time', 0, 1380], ['#end-time', 30, 1410]]) {
+    for (const [id, first, last] of [['#start-time', 0, 1410], ['#end-time', 30, 1440]]) {
       $(id).replaceChildren();
       for (let value = first; value <= last; value += 30) {
         const text = `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(value % 60).padStart(2, '0')}`;
@@ -128,9 +132,15 @@
       }
     }
     $('#start-time').value = `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
-    const end = Math.min(minute + 60, 1410);
+    const end = Math.min(minute + 60, 1440);
     $('#end-time').value = `${String(Math.floor(end / 60)).padStart(2, '0')}:${String(end % 60).padStart(2, '0')}`;
     state.dirty = true; state.selected = null;
+  }
+  function reservationDateTime(date, time) {
+    if (time !== '24:00') { return `${date}T${time}:00+09:00`; }
+    const nextDate = new Date(`${date}T00:00:00Z`);
+    nextDate.setUTCDate(nextDate.getUTCDate() + 1);
+    return `${nextDate.toISOString().slice(0, 10)}T00:00:00+09:00`;
   }
   function queryFromForm() { return { date: $('#date').value, start: $('#start-time').value, end: $('#end-time').value }; }
   function duration(query) {
@@ -245,7 +255,7 @@
       const header = element('div', 'reservation-card-header'); header.append(element('strong', '', reservation.seatCode),
         element('span', reservation.status === 'CHECKED_IN' ? 'status-tag in-use' : 'status-tag', reservation.status === 'CHECKED_IN' ? '이용 중' : '입실 대기'));
       card.append(header, element('p', '', `${dateLabel(reservation.startAt)} · ${zoneNames[reservation.zone]}`),
-        element('p', '', `${timeOf(reservation.startAt)} – ${timeOf(reservation.endAt)}`));
+        element('p', '', `${timeOf(reservation.startAt)} – ${reservationEndTime(reservation)}`));
       if (reservation.status === 'RESERVED') {
         card.append(element('p', 'deadline', `${timeOf(reservation.checkInDeadlineAt)}까지 체크인해 주세요`));
         const button = element('button', 'button button-secondary button-full', 'QR 체크인'); button.type = 'button';
@@ -274,7 +284,7 @@
     const seat = state.selected, query = { ...state.query }, version = state.policy.versionNo;
     confirmation(`${seat.code} 좌석을 예약할까요?`, `${zoneNames[seat.zone]}\n${dateLabel(`${query.date}T12:00:00+09:00`)} ${query.start} – ${query.end}\n도착 후 예약 시작 시각부터 ${state.policy.graceMinutes}분 안에 체크인해 주세요.`, '예약 확정', async () => {
       await api('/api/reservations', { method: 'POST', body: { seatId: seat.id,
-        startAt: `${query.date}T${query.start}:00+09:00`, endAt: `${query.date}T${query.end}:00+09:00`, policyVersion: version } });
+        startAt: reservationDateTime(query.date, query.start), endAt: reservationDateTime(query.date, query.end), policyVersion: version } });
       $('#confirm-dialog').close(); state.selected = null;
       toast(`${seat.code} 좌석 예약이 완료되었어요.`); await refreshData(true);
     });
@@ -305,7 +315,7 @@
   function openCheckIn(reservation) {
     stopCamera(); state.checkin = reservation; state.scanBusy = false; $('#qr-file').value = '';
     $('#checkin-title').textContent = `${reservation.seatCode} 좌석에 도착하셨나요?`;
-    $('#checkin-description').textContent = `${timeOf(reservation.startAt)} – ${timeOf(reservation.endAt)} · ${timeOf(reservation.checkInDeadlineAt)}까지 체크인`;
+    $('#checkin-description').textContent = `${timeOf(reservation.startAt)} – ${reservationEndTime(reservation)} · ${timeOf(reservation.checkInDeadlineAt)}까지 체크인`;
     showMessage($('#checkin-message'), ''); $('#checkin-dialog').showModal();
   }
   async function submitQr(payload) {

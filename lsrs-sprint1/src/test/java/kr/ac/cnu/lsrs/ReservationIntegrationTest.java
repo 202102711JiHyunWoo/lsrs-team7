@@ -35,6 +35,20 @@ class ReservationIntegrationTest extends IntegrationSupport {
         send("/api/reservations", token(firstUser()), request(seat(0), "2026-11-14T09:30:00+09:00", "2026-11-14T10:30:00+09:00"))
                 .andExpect(status().isBadRequest());
     }
+    @Test void US06_midnightEndIsAllowedAndNextDayReservationIsAdjacent() throws Exception {
+        String jwt = token(firstUser());
+        read("/api/seats?date=2026-11-14&start=23:30&end=24:00", jwt).andExpect(status().isOk());
+        send("/api/reservations", jwt, request(seat(0), "2026-11-14T23:30:00+09:00", "2026-11-15T00:00:00+09:00"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.endAt").value("2026-11-14T15:00:00Z"));
+        send("/api/reservations", jwt, request(seat(0), "2026-11-15T00:00:00+09:00", "2026-11-15T00:30:00+09:00"))
+                .andExpect(status().isCreated());
+    }
+    @Test void US03_invalidMidnightQueryIsRejected() throws Exception {
+        String jwt = token(firstUser());
+        read("/api/seats?date=2026-11-14&start=23:30&end=24:30", jwt).andExpect(status().isBadRequest());
+        read("/api/seats?date=2026-11-14&start=23:30&end=00:30", jwt).andExpect(status().isBadRequest());
+    }
     @ParameterizedTest(name = "invalid interval {0} to {1}")
     @CsvSource({
             "2026-11-14T11:30:00+09:00,2026-11-14T10:30:00+09:00",

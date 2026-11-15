@@ -19,11 +19,8 @@ public class SeatQueryService {
         this.seats = seats; this.reservations = reservations; this.policies = policies; this.clock = clock;
     }
     @Transactional(readOnly = true)
-    public SeatsView query(long userId, LocalDate date, LocalTime start, LocalTime end) {
-        PolicyVersion policy = policies.currentEntity();
-        Instant from = date.atTime(start).atZone(TimeRules.ZONE).toInstant();
-        Instant until = date.atTime(end).atZone(TimeRules.ZONE).toInstant();
-        TimeRules.validate(from, until, policy.getReservationUnitMinutes());
+    public SeatsView query(long userId, Instant from, Instant until) {
+        PolicyVersion policy = policies.currentEntity();TimeRules.validate(from, until, policy.getReservationUnitMinutes());
         Map<Long, List<Reservation>> grouped = reservations.findOverlapping(from, until, ReservationService.ACTIVE).stream()
                 .collect(Collectors.groupingBy(reservation -> reservation.getSeat().getId()));
         List<SeatView> result = seats.findAllByOrderByCodeAsc().stream().map(seat -> {
