@@ -5,7 +5,7 @@ import java.time.Instant;
 
 @Entity @Table(name = "reservation")
 public class Reservation {
-    public enum Status { RESERVED, CHECKED_IN, COMPLETED, AUTO_CANCELLED }
+    public enum Status { RESERVED, CHECKED_IN, COMPLETED, AUTO_CANCELLED, CANCELLED }
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "user_id") private AppUser user;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "seat_id") private Seat seat;
@@ -25,6 +25,7 @@ public class Reservation {
     }
     public void checkIn(Instant now) { status = Status.CHECKED_IN; checkedInAt = now; }
     public void complete(Instant now) { status = Status.COMPLETED; completedAt = now; }
+    public void cancel() { status = Status.CANCELLED; }
     public Long getId() { return id; }
     public AppUser getUser() { return user; }
     public Seat getSeat() { return seat; }
