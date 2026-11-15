@@ -22,8 +22,10 @@ public class CheckInService {
         Instant now = clock.instant();
         if (now.isBefore(reservation.getStartAt()))
             throw BusinessException.conflict("CHECKIN_NOT_STARTED", "예약 시작 시각부터 체크인할 수 있습니다.");
-        if (now.isAfter(reservation.getCheckInDeadlineAt()) || !now.isBefore(reservation.getEndAt()))
-            throw BusinessException.conflict("CHECKIN_EXPIRED", "체크인 기한이 지났습니다.");
+        if (!now.isBefore(reservation.getEndAt()))
+            throw BusinessException.conflict("CHECKIN_EXPIRED", "예약 이용 종료 시각이 지나 체크인할 수 없습니다.");
+        if (now.isAfter(reservation.getCheckInDeadlineAt()))
+            throw BusinessException.conflict("CHECKIN_EXPIRED", "입실 유예시간(15분)이 지나 체크인할 수 없습니다.");
         reservation.checkIn(now);
         return ReservationView.of(reservation);
     }
