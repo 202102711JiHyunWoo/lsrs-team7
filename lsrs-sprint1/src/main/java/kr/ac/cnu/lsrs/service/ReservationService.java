@@ -67,10 +67,26 @@ public class ReservationService {
         reservation.complete(clock.instant());
         return ReservationView.of(reservation);
     }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public ReservationView cancel(long userId, long reservationId) {
+        Reservation reservation = lockOwned(userId, reservationId);
+        if (reservation.getStatus() == Reservation.Status.CANCELLED)
+            return ReservationView.of(reservation);
+        if (reservation.getStatus() != Reservation.Status.RESERVED)
+            throw BusinessException.conflict("INVALID_RESERVATION_STATE", "입실 대기 중인 본인 예약만 취소할 수 있습니다. 이용 중이면 퇴실 기능을 사용해 주세요.");
+        Instant now = clock.instant();
+        if (now.isAfter(reservation.getCheckInDeadlineAt()) || !now.isBefore(reservation.getEndAt()))
+            throw BusinessException.conflict("CANCELLATION_EXPIRED", "입실 기한이 지난 예약은 취소할 수 없습니다.");
+        reservation.cancel();
+        return ReservationView.of(reservation);
+    }
+
     @Transactional(readOnly = true)
     public List<ReservationView> mine(long userId) {
         return reservations.findByUserIdOrderByStartAtDescIdDesc(userId).stream().map(ReservationView::of).toList();
     }
+    
     @Transactional(readOnly = true)
     public ReservationView detail(long userId, long reservationId) {
         Reservation reservation = reservations.findById(reservationId).orElseThrow(BusinessException::missing);
