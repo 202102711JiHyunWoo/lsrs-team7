@@ -298,11 +298,34 @@
 
   function confirmCancellation(reservation) {
     confirmation('예약을 취소할까요?', `${reservation.seatCode} 좌석 예약을 취소합니다.\n취소하면 다른 학생이 이 좌석을 예약할 수 있어요.`, '예약 취소', async () => {
-      await api(`/api/reservations/${reservation.id}/cancellations`, { method: 'POST' });
-      $('#confirm-dialog').close();
+      const cancelled = await api(
+        `/api/reservations/${reservation.id}/cancellations`,
+        { method: 'POST' }
+      );
+
+      if (cancelled.id !== reservation.id || cancelled.status !== 'CANCELLED') {
+        throw new Error(
+          '서버에서 취소 완료 상태를 확인하지 못했어요. 내 이용 현황을 다시 확인해 주세요.'
+        );
+      }
+
+      // 취소 전 시작된 조회 결과가 이전 화면을 복원하지 않도록 처리
+      state.generation++;
       state.selected = null;
-      toast('예약이 취소되었습니다.');
+
+      // 서버가 확인한 취소 결과를 이용 현황에 바로 반영
+      state.reservations = state.reservations.map(item =>
+        item.id === cancelled.id ? cancelled : item
+      );
+      renderMine();
+      $('#confirm-dialog').close();
+
+      // 좌석 상태는 서버에서 다시 조회
       await refreshData(true);
+
+      toast(state.loaded
+        ? '예약이 취소되었습니다.'
+        : '예약이 취소되었습니다. 좌석 현황을 다시 조회해 주세요.');
     });
   }
 
